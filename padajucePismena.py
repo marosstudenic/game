@@ -7,6 +7,7 @@ import time
 #definitions
 class Pismeno:
     run = True
+    count = 0
     
     def __init__(self,canvas, root):
         self.can = canvas
@@ -15,21 +16,23 @@ class Pismeno:
         self.height = root.winfo_screenheight()-150
         self.text = random.choice(string.ascii_lowercase)
         self.x = random.randint(10,self.width)
-        self.id = self.can.create_text(self.x, 0,text = self.text,font=("sans serif", 32))
+        self.id = self.can.create_text(self.x, 0,text = self.text.upper(),font=("sans serif", 32))
         
         self.move()
 
     def move(self):
         if Pismeno.run:
             
-            if self.can.coords(self.id)[1]<self.height:
-                self.can.move(self.id, 0,10)
+            if self.can.coords(self.id)[1]<self.height and Pismeno.run:
+                self.can.move(self.id, 0,10+Pismeno.count//5)
                 self.can.after(50, self.move)
             else:
                 Pismeno.run = False
         else:
             self.can.delete('all')
             self.can.create_text(self.width//2, self.height//2, text = "Game Over", font=("Purisa", 50))
+            self.can.create_text(self.width//2,self.height//2+50, text = str(Score.score), font = "Purisa 20")
+
     def check(self, st):
         if self.text == st:
             self.can.delete(self.id)
@@ -48,19 +51,27 @@ class Score:
         self.scoreText = canvas.create_text(20,20,text = Score.score, font='Georgia 30')
 
 def start():
-    for i in range(len(pismena)-1,-1,-1):
-        pismena[i].check(pismena[i].text)
-        pismena.pop(i)
+    Pismeno.run = False
+    
+    pismena = []
     canvas.delete('all')
-    Score.score = 0
+    Score.score = 0    
     Pismeno.run = True
+    print(pismena)
+    
     generator()
+    
 
 
 def generator():
+    Pismeno.count += 1
+    
+    
     if Pismeno.run:
         pismena.append(Pismeno(canvas,root))
         canvas.after(1000, generator)
+    else:
+        return
     
 
 def keyPressed(event):
@@ -76,6 +87,7 @@ def keyPressed(event):
             popp.append(i) 
     if len(popp)==0 and key!='space':
         Pismeno.run = False
+
     popp.reverse()
     sc.redraw(len(popp))
    
@@ -98,7 +110,6 @@ pismena = []
 canvas = tkinter.Canvas(height = height, width = width)
 canvas.pack()
 # button = tkinter.Button(root,text='Start', command=generator) 
-
 
 
 sc = Score(canvas)
